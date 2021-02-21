@@ -2,12 +2,12 @@
 
 
 //***************************** ENCODING ********************************
-void EncodeUnaryRandom(std::string& InputBytes, bool SwapChunks)
+void EncodeUnaryRandom(std::string& InputBytes)
 {
     unsigned int Previous_bufindex = 0, NumberOfUnaryBits = 0, i = 0, j = 0, k = 0, Bit_Index_For_Byte = 0, ii = 0, Kbytes = 0;
-    unsigned int OriginalVArray[400], OriginalRArray[400], RandIndex[400], Decode[400], VArray[400], RArray[400], SizeChunk[400] ,Size = 0;
+    unsigned int OriginalVArray[400], OriginalRArray[400], RandIndex[400], VArray[400], RArray[400], SizeChunk[400], ShuffleArray[400][2];
   
-    unsigned int Total_Bits = 0, BitCount = 0, kk = 0, BitsLeft, firstone = 0;
+    unsigned int Total_Bits = 0, BitCount = 0, kk = 0, BitsLeft, firstone = 0, Size = 0;
     unsigned  int BytesFromInputLoop = 0, NumberBytes = 0, NumberBits = 0, size=0;
     unsigned char xin = 0, XinLow = 0, XinHigh = 0, alternate = 0;
     unsigned int ctemp = 0, R = 0, tempscheme = 0;
@@ -19,7 +19,7 @@ void EncodeUnaryRandom(std::string& InputBytes, bool SwapChunks)
     unsigned char Mask[8];
     unsigned char DecodeMask = 0;
     
-    bool TestBit, One = 1, TempTest = 0, Vstart = 0,VR=0,Swap=0,krandom=0,XorBits=0;
+    bool TestBit, One = 1, TempTest = 0, Vstart = 0,SwapChunks=0,krandom=0,XorBits=0;
     //**************************************************** Trailer ************************
     unsigned int TrailerLength = 24;
     std::bitset<4>Nulls1("0011");
@@ -64,7 +64,7 @@ void EncodeUnaryRandom(std::string& InputBytes, bool SwapChunks)
         if(j==1) EncryptBits.flip(i);
     }
     ConsoleInput = "";
-    VR = 1;
+   
   
     //*******************************************
     NumberBytes = InputBytes.size();
@@ -118,10 +118,6 @@ void EncodeUnaryRandom(std::string& InputBytes, bool SwapChunks)
 
     ArrayIndex = 0;
     BitsLeft = 0;
-    // BitsLeft = NumberBits;
-   //  i=BitsLeft >>= 3;// divide by 8
-   //  i >>= 3;
-   //  BitsLeft = NumberBits -i;
     std::cout << "\n";
     std::cout << "\n" << NumberBytes << " Bytes in message  " << NumberBytes << "  Number of bits are " << NumberBits << " \n";
     std::cout << "  All bytes are in bits now.Now we will split the Plaintext into chunks \n";
@@ -131,9 +127,7 @@ void EncodeUnaryRandom(std::string& InputBytes, bool SwapChunks)
     ChunkBits.reset();
     V = 0;
     R = 0;
-    //  NewChunkSize = 0;
-     // ChunkSize = rand() % 4 + 3;
-      //***************************************************************** Now we make a list of the Rs & V's
+    //***************************************************************** Now we make a list of the Rs & V's
     for (BitCount = 0;BitCount < NumberBits;BitCount++) {
         // fill of chunk
         // then find how many leading zeros there are
@@ -179,12 +173,12 @@ void EncodeUnaryRandom(std::string& InputBytes, bool SwapChunks)
             V = V + 1;// add 1 per spec
             R = R + 1;// add 1 per spec
             //Now Put the V and R's intp an array
-            if(VR) OriginalRArray[ArrayIndex] = R;
+            OriginalRArray[ArrayIndex] = R;
             OriginalVArray[ArrayIndex] = V;
             ArrayIndex++;
 
             std::cout << "Original VArray =" << V << "     ";
-            if(VR) std::cout <<"Original RArray = " << R << " ";
+            std::cout <<"Original RArray = " << R << " ";
             
             //**********************************************
             ChunkCount = 0;
@@ -210,10 +204,11 @@ void EncodeUnaryRandom(std::string& InputBytes, bool SwapChunks)
 
     }// This is the Array will all values
     Total_Bits = 0;
+    ChunkCount = ArrayIndex;
     for (i = 0;i < ArrayIndex;i++)
     {
         std::cout << "V" << i << "= " << OriginalVArray[i] << " ";
-        if(VR) std::cout << "R" << i << "= " << OriginalRArray[i] << "\n";
+        std::cout << "R" << i << "= " << OriginalRArray[i] << "\n";
     };
 
 
@@ -225,35 +220,38 @@ void EncodeUnaryRandom(std::string& InputBytes, bool SwapChunks)
     std::mt19937 g(rd());
     std::shuffle(nums.begin(), nums.end(), g);
     //Suffle
-    if (!SwapChunks)
-    {
-        for (i = 0;i < ArrayIndex;i++)  RandIndex[i] = i;
-    }
     std::cout << " ******************************************THIS IS WHERE WE CAN RANDOMLY SWAP VR CHUNKS *********************************************** \n";
     
-    if (SwapChunks)
+    if (!SwapChunks)
     {
-
-        //setting up waping array nums[i];
-
-        for (int i = 0; i < nums.size(); i++)  std::cout << "  Chunk # " << i << "  is now sent in position " << nums[i] << " \n";
-        //*******************************************************************************
-
-    };
+        for (i = 0;i <= ChunkCount;i++)
+        {
+            nums[i]=i;
+        }
+    }
+        //setting up swapping array nums[i];
+    std::cout << "\n  VArray   RArray        OriginalVArray      OriginalRArray \n";
+        for (int i = 0; i < nums.size(); i++)
+        {
+            VArray[i] = OriginalVArray[nums[i]];
+            RArray[i] = OriginalRArray[nums[i]];
+            std::cout << "\n " << i << "  " << VArray[i] << "        " << RArray[i] << "                " << OriginalVArray[i] << "            " << OriginalRArray[i];
+            //*******************************************************************************
+        }
+     std::cout<<"\n";
 
          NumberOfUnaryBits = 0;
         for (i = 0;i < ArrayIndex;i++) {// RATHER THAN JUST SEQUENTIALLY SEND OUT CHUNKS WE COULD RANDOMLY SEND THEM OUT
-            ii = i;
-            if (SwapChunks == 1) ii = nums[i];
-            kk = OriginalVArray[ii];
-            std::cout << " Chunk Number " << ii << " V=  ";
+            
+            kk = VArray[i];
+            std::cout << " Chunk Number " << i << " V=  ";
             for (k = 0;k < kk;k++) {
                 std::cout << One;
                 EncodedBits.set(NumberOfUnaryBits, One);
                 NumberOfUnaryBits++;
               
             }
-                kk = OriginalRArray[ii];
+                kk =RArray[i];
                 std::cout << " R= ";
                 for (k = 0;k < kk;k++) {
                     std::cout << !One;
@@ -381,7 +379,6 @@ void EncodeUnaryRandom(std::string& InputBytes, bool SwapChunks)
 
     }
     BitCount = 0;
-    //ChunkCount--;
     if (R == 1) RArray[ChunkCount] = kk;
 
     std::cout << "\n                      This is the reconstructed RV Arrays from the encoded stream \n";
@@ -406,32 +403,33 @@ void EncodeUnaryRandom(std::string& InputBytes, bool SwapChunks)
 
 
     //*********************************** Unswap **************************
-    // Array[1] sent as Array[5];
-
-    if (SwapChunks)
+   
+    // Clear arrays
+    for (i = 0;i < 200;i++) 
     {
+        OriginalVArray[i] = 0;
+        OriginalRArray[i] = 0;
+    }
+   
+        // the first one receuved is VArray[0] which is then placed in NUMS[i], if Nums[0]=3. then it is placed in the third one in or i=2
+        for (i = 0;i <= ChunkCount;i++) {
+            ii=nums[i];
+            OriginalVArray[ii] = VArray[i];
+            OriginalRArray[ii] = RArray[i];
+        }
+        std::cout << "\n **********     Descrambled Array *****************  \n";
+        for (i = 0;i <= ChunkCount;i++) {
 
-        for (i = 0;i < ChunkCount;i++) {
-              // array 0 was sent as array 3
-            for (ii = 0;ii < ChunkCount;ii++) 
-            {
-                j = nums[i];
-                if (j == i) 
-                {
-                    OriginalRArray[i] = RArray[ii];
-                    OriginalVArray[i] = VArray[ii];
+            std::cout << " V" << i << "= " << OriginalVArray[i] << "     ";
 
-                    break;
-                    
-                }
+            std::cout << " R" << i << "= " << OriginalRArray[i];
 
-            }
-
-          
+            std::cout << "\n";
 
         };
-    };
-    
+          
+  
+   
     std::cout << "        Decoded  bit stream ********************  \n";
     for (i = 0;i <= 200;i++) SizeChunk[i] = 0;
     BitCount = 0;// place bits from 0 to7 for bytes etc.

@@ -24,10 +24,9 @@ using namespace std;
 
 int main()
 {
-    unsigned int EncodingArray[2][300];// up to 
     unsigned char schar = 0x0, krandom = 0, scheme = 8;
     
-    char  temp = 0, Message[200];
+    char  temp = 0;
     char Zero = 0x00, One = 0x01, Null1 = 0x06, Null2 = 0x03;
     unsigned char xin = 0;// data input character
     unsigned char t = 0x00, TotalBytes = 0;
@@ -39,7 +38,6 @@ int main()
     unsigned int Length = 0,BitsLeft=0;
     int NumberOfBitsInString = 0;
     unsigned int TrailerLength = 22;
-    bool SwapChunks = 0;
     std::string OutputBytes = "";
     std::string ConsoleInput;
     std::string OriginalInput;
@@ -67,7 +65,7 @@ AGAIN:
 
     NumberBytes = ConsoleInput.length();// length in bytes in "1235" is 4
        
-        EncodeUnaryRandom(ConsoleInput,SwapChunks);// length in bits
+        EncodeUnaryRandom(ConsoleInput);// length in bits
         
         ConsoleInput.erase();
        // ConsoleInput = "";
