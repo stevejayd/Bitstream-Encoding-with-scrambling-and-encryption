@@ -2,6 +2,7 @@
 //
 #include <time.h>
 #include <iostream>
+#include <fstream>
 #include <stdio.h>
 #include <conio.h>
 #include <string>
@@ -13,9 +14,8 @@
 
 #include <vector>
 
-#include "DecodeUnaryCharactersUsingStrings.h"
 #include "EncodeUnaryRandom.h"
-//#include <boost/dynamic_bitset.hpp>"
+
 
 
 
@@ -41,14 +41,14 @@ int main()
     std::string OutputBytes = "";
     std::string ConsoleInput;
     std::string OriginalInput;
- 
+    std::string FileName;
     //********************** Encrypt Array Setup *************************************
     // Each array element has 8 bits. from 0 to 255 randomly
    
  
 AGAIN:
     ConsoleInput.erase();
-    std::string TestMessage = "ABCD";//"The quick brown fox jumps over the lazy dogs back. 1234567890 !@#$%^&*() ABCDE";
+    std::string TestMessage = "The quick brown fox jumps over the lazy dogs back. 1234567890 !@#$%^&*() ABCDE";
    
     cout << " Just Enter return for a standard test message or Enter a message :";
     //********************************************************************************
@@ -64,9 +64,9 @@ AGAIN:
     OriginalInput = ConsoleInput;
 
     NumberBytes = ConsoleInput.length();// length in bytes in "1235" is 4
-       
-        EncodeUnaryRandom(ConsoleInput);// length in bits
-        
+    FileName = "Test File";
+        EncodeUnaryRandom(ConsoleInput,FileName);// length in bits
+    
         ConsoleInput.erase();
        // ConsoleInput = "";
         cout << "\n";
